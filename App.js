@@ -6,7 +6,8 @@ import CadastroManutencao from './CadastroManutencao';
 import ListaManutencoes from './ListaManutencoes';
 import ControleGastos from './ControleGastos';
 import CadastroVeiculo from './CadastroVeiculo';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Home from './Home';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,7 +35,7 @@ export default function App() {
     <SafeAreaProvider>
       <NavigationContainer theme={MyTheme}>
         <Tab.Navigator
-          initialRouteName="ListaManutencoes"
+          initialRouteName="Home"
           screenOptions={({ route }) => ({
             headerStyle: {
               backgroundColor: '#1976d2',
@@ -63,7 +64,8 @@ export default function App() {
             },
             tabBarIcon: ({ color, size, focused }) => {
               let iconName;
-              if (route.name === 'CadastroManutencao') iconName = 'add-circle-outline';
+              if (route.name === 'Home') iconName = 'home';
+              else if (route.name === 'CadastroManutencao') iconName = 'add-circle-outline';
               else if (route.name === 'ListaManutencoes') iconName = 'list';
               else if (route.name === 'ControleGastos') iconName = 'attach-money';
               else if (route.name === 'CadastroVeiculo') iconName = 'directions-car';
@@ -84,6 +86,11 @@ export default function App() {
             },
           })}
         >
+          <Tab.Screen
+            name="Home"
+            component={Home}
+            options={{ tabBarLabel: 'Início', headerTitle: 'MyCar' }}
+          />
           <Tab.Screen
             name="CadastroManutencao"
             component={CadastroManutencao}
