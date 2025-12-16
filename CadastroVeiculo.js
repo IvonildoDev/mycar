@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import VehicleService from './services/VehicleService';
 
 const marcas = [
     'Chevrolet', 'Fiat', 'Ford', 'Volkswagen', 'Renault', 'Toyota', 'Honda', 'Hyundai', 'Nissan', 'Jeep',
@@ -20,17 +20,15 @@ export default function CadastroVeiculo() {
             return;
         }
         const novoVeiculo = { placa, ano, marca, modelo };
-        try {
-            const dados = await AsyncStorage.getItem('veiculos');
-            const lista = dados ? JSON.parse(dados) : [];
-            lista.push(novoVeiculo);
-            await AsyncStorage.setItem('veiculos', JSON.stringify(lista));
+        const sucesso = await VehicleService.save(novoVeiculo);
+
+        if (sucesso) {
             Alert.alert('Veículo cadastrado com sucesso!');
             setPlaca('');
             setAno('');
             setMarca('');
             setModelo('');
-        } catch (e) {
+        } else {
             Alert.alert('Erro ao salvar veículo!');
         }
     };

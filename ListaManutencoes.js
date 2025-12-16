@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
+import MaintenanceService from './services/MaintenanceService';
 
 const ListaManutencoes = ({ navigation }) => {
     const [manutencoes, setManutencoes] = useState([]);
@@ -10,13 +10,8 @@ const ListaManutencoes = ({ navigation }) => {
     useFocusEffect(
         React.useCallback(() => {
             const carregarManutencoes = async () => {
-                const dados = await AsyncStorage.getItem('manutencoes');
-                if (dados) {
-                    const lista = JSON.parse(dados);
-                    setManutencoes(lista.map((item, idx) => ({ ...item, key: idx.toString() })));
-                } else {
-                    setManutencoes([]);
-                }
+                const lista = await MaintenanceService.getAll();
+                setManutencoes(lista);
             };
             carregarManutencoes();
         }, [])
@@ -32,11 +27,12 @@ const ListaManutencoes = ({ navigation }) => {
                     text: 'Excluir',
                     style: 'destructive',
                     onPress: async () => {
-                        const dados = await AsyncStorage.getItem('manutencoes');
-                        let lista = dados ? JSON.parse(dados) : [];
-                        lista = lista.filter((_, idx) => idx.toString() !== key);
-                        await AsyncStorage.setItem('manutencoes', JSON.stringify(lista));
-                        setManutencoes(lista.map((item, idx) => ({ ...item, key: idx.toString() })));
+                        const novaLista = await MaintenanceService.delete(key);
+                        if (novaLista) {
+                            setManutencoes(novaLista);
+                        } else {
+                            Alert.alert('Erro ao excluir manutenção');
+                        }
                     }
                 }
             ]

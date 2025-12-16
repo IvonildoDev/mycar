@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, Alert, Switch, FlatList, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import VehicleService from './services/VehicleService';
+import MaintenanceService from './services/MaintenanceService';
 
 export default function CadastroManutencao({ navigation, route }) {
     const [data, setData] = useState(new Date());
@@ -25,8 +26,8 @@ export default function CadastroManutencao({ navigation, route }) {
 
     useEffect(() => {
         const carregarVeiculos = async () => {
-            const dados = await AsyncStorage.getItem('veiculos');
-            if (dados) setVeiculos(JSON.parse(dados));
+            const lista = await VehicleService.getAll();
+            setVeiculos(lista);
         };
         carregarVeiculos();
     }, []);
@@ -83,11 +84,10 @@ export default function CadastroManutencao({ navigation, route }) {
             ...infoPagamento,
             veiculo: veiculoSelecionado,
         };
-        try {
-            const dados = await AsyncStorage.getItem('manutencoes');
-            const lista = dados ? JSON.parse(dados) : [];
-            lista.push(novaManutencao);
-            await AsyncStorage.setItem('manutencoes', JSON.stringify(lista));
+
+        const sucesso = await MaintenanceService.save(novaManutencao);
+
+        if (sucesso) {
             Alert.alert('Manutenção cadastrada!');
             setData(new Date());
             setTipo('');
@@ -100,7 +100,7 @@ export default function CadastroManutencao({ navigation, route }) {
             setQtdParcelas('');
             setPlacaBusca('');
             setVeiculoSelecionado(null);
-        } catch (e) {
+        } else {
             Alert.alert('Erro ao salvar manutenção!');
         }
     };
@@ -249,7 +249,8 @@ export default function CadastroManutencao({ navigation, route }) {
                     <TouchableOpacity style={styles.botao} onPress={salvarManutencao}>
                         <Text style={styles.botaoTexto}>Salvar Manutenção</Text>
                     </TouchableOpacity>
-                    <View style={{ height: 90 }} /> {/* Espaço extra para não ficar atrás da Tab Bar */}
+                    {/* Espaço extra para não ficar atrás da Tab Bar */}
+                    <View style={{ height: 90 }} />
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>

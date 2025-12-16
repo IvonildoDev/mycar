@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import ControleGastos from './ControleGastos';
 import CadastroVeiculo from './CadastroVeiculo';
 import Home from './Home';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { initDatabase } from './services/Database';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +32,21 @@ function CustomTabBarIcon({ name, color, size, focused }) {
 }
 
 export default function App() {
+  const [dbReady, setDbReady] = React.useState(false);
+
+  useEffect(() => {
+    try {
+      initDatabase();
+      setDbReady(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  if (!dbReady) {
+    return null; // Ou um LoadingScreen
+  }
+
   return (
     <SafeAreaProvider>
       <NavigationContainer theme={MyTheme}>
